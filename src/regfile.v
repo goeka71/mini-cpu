@@ -12,7 +12,7 @@ module regfile(i_1, i_2, write_data, clk, RegWrite, o_1, o_2);
     output reg [15:0] o_1;
     output reg [15:0] o_2;
 
-    reg [15:0] registers [7:0];
+    reg [15:0] registers [0:7];
 
     always@(posedge clk) // Write
     begin
