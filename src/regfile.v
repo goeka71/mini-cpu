@@ -19,7 +19,7 @@ module regfile(r1_addr, r2_addr, rd_addr, write_data, clk, RegWrite, o_1, o_2);
             if (RegWrite == 1'b1)
                 registers[rd_addr] <= write_data;
         end
-        //$display("Write %d", write_data);
+        $display("Write %0d", write_data);
     end
 
     always@(*) // Read

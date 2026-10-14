@@ -10,9 +10,9 @@ module imem(pc, imem_o);
     reg [15:0] instr [0:63];
 
     initial begin
-        instr[0] = 16'h1234;
-        instr[1] = 16'hABCD;
-        instr[2] = 16'h0F0F;
+        instr[0] = 16'b0100_000_001_000010; // register 1 <- 0+2
+        instr[1] = 16'b0100_000_010_000011; // register 2 <- 0+3
+        instr[2] = 16'b0000_001_010_011_000; // regiter 3 <- register1 + register2
     end
 
     assign imem_o = instr[pc[5:0]];

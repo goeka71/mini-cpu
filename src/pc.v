@@ -17,6 +17,6 @@ module pc(clk, reset, next_pc, pc);
             pc <= 0;
         else
             pc <= next_pc;
-        $display("time = %t, pc = %d", $time, pc);
+        $display("time = %0d, pc = %0d\n", $time, pc);
     end
 endmodule
