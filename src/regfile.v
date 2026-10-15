@@ -24,9 +24,12 @@ module regfile(r1_addr, r2_addr, rd_addr, write_data, clk, RegWrite, o_1, o_2);
 
     always@(*) // Read
     begin
-        if (r1_addr != 0 & r2_addr != 0) begin
+        if (r1_addr != 0 && r2_addr != 0) begin
             o_1 = registers[r1_addr];
             o_2 = registers[r2_addr];
+        end else if (r1_addr == 0 && r2_addr == 0) begin
+            o_1 = 0;
+            o_2 = 0;
         end else if (r1_addr == 0) begin
             o_1 = 0;
             o_2 = registers[r2_addr];

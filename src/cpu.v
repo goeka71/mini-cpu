@@ -25,6 +25,19 @@
         - MemToReg = 1 -> 레지스터 rd(_8_6)에 READ한 값을 WRITE (regfile.v)
 */
 
+/* 4차 : BEQ & BNE
+    - BEQ (0111) : rs1=rs2이면 offset+pc+1로 분기
+    - BNE (1000) : rs1≠rs2이면 offset+pc+1로 분기
+
+    (1~3은 2차와 동일)
+    4. ALUSrc = 0에 따라 read2 data가 ALU에 들어감 & ALUOp = sub
+    5. alu.v의 zero -> Branch의 하위비트와 XOR(다르면 1) + 상위비트와 AND
+        5-1. (BEQ : Branch = 10) zero = 1일때 1
+        5-2. (BNE : Branch = 11) zero = 0일 때 1
+    6. 위 결과가 1인 경우, pc + offset + 1을 next pc로 
+
+*/
+
 module cpu(
     input clk,
     input reset,
@@ -55,8 +68,11 @@ module cpu(
 
     //wire [15:0] load_data;
 
+    wire branch0, branch1;
+    wire PCSrc;
+
 //-----------------------------
-    assign next_pc = pc + 1;
+    assign next_pc = PCSrc ? (extend + pc + 1) : (pc + 1);
 
     pc u_pc(.clk(clk), .reset(reset), .next_pc(next_pc), .pc(pc)); // 결과값 = pc
     imem u_imem(.pc(pc), .imem_o(instr)); // 결과값 = pc가 가리키는 명령어 = instr
@@ -76,6 +92,10 @@ module cpu(
     // RegDst MUX
     assign write_addr = RegDst ? _8_6 : _5_3; // RegDst가 1이면 [8:6]레지스터에 쓰고, 0이면 [5:3]레지스터에 씀
 
+    // Branch 상, 하위 비트 정의
+    assign branch0 = Branch[0]; // 하위비트 
+    assign branch1 = Branch[1]; // 상위비트
+
     // 레지스터 파일 + MemToReg MUX
     // MemToReg MUX : 1이면 load_data WRITE, 0이면 ALU_res WRITE
     regfile u_regfile(.r1_addr(_11_9), .r2_addr(_8_6), .rd_addr(write_addr), .write_data(MemToReg ? load_data : ALU_res), .clk(clk), .RegWrite(RegWrite), .o_1(rd1), .o_2(rd2));
@@ -85,6 +105,8 @@ module cpu(
     alu u_alu(.r1(rd1), .r2(ALUSrc ? extend : rd2), .ALUOp(ALUOp), .res(ALU_res), .zero(zero));
     // ALUSrc가 1이면 extend과 rd1, 0이면 rd1과 rd2를 연산
     // ALU의 결과값이 write_data 저장
+    assign PCSrc = (branch0 ^ zero) && branch1; // zero의 결과에 따라 PCSrc 저장
+
 
     // WRITE : write data = rd2, addr = ALU_res
     // READ : addr = ALU_res

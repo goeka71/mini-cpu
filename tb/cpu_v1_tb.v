@@ -15,7 +15,7 @@ module cpu_v1_tb;
         #15
         reset = 0;
         
-        for (i = 0; i < 8; i = i + 1) begin
+        for (i = 0; i < 15; i = i + 1) begin
             $display("time = %0d, instr = %b, RegWrite = %b, Memory Load Data = %0d, ALU Result = %0d", $time, instr, RegWrite, load_data, ALU_res);
             #10;
         end
