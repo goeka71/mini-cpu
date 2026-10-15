@@ -18,7 +18,7 @@ module regfile(r1_addr, r2_addr, rd_addr, write_data, clk, RegWrite, o_1, o_2);
         if (rd_addr != 0) begin
             if (RegWrite == 1'b1)
                 registers[rd_addr] <= write_data;
-                $display("Register Write %0d", write_data);
+                //$display("Register Write %0d", write_data);
         end
     end
 

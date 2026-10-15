@@ -41,13 +41,14 @@
 module cpu(
     input clk,
     input reset,
+    output [15:0] pc,
     output [15:0] instr,
     output RegWrite,
     output [15:0] load_data,
     output [15:0] ALU_res
 );
     wire [15:0] next_pc;
-    wire [15:0] pc; // 현재 실행 중인 명령어의 주소
+    //wire [15:0] pc; // 현재 실행 중인 명령어의 주소
     //wire [15:0] instr; // 현재 실행 중인 명령어
     // 명령어 구성
     wire [3:0] opcode;

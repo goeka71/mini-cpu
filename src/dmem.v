@@ -17,7 +17,7 @@ module dmem(MemWrite, addr, write_data, clk, read_data);
     begin
         if (MemWrite == 1) begin
             data[addr] <= write_data;
-            $display("Memory Write addr = %0d, data = %0d", addr, write_data);
+            //$display("Memory Write addr = %0d, data = %0d", addr, write_data);
         end
     end
 
