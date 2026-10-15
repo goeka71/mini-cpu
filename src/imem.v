@@ -10,7 +10,7 @@ module imem(pc, imem_o);
     reg [15:0] instr [0:63];
 
     initial begin
-        $readmemb("docs/test2_sum.txt", instr);
+        $readmemb("docs/test3_multiply.txt", instr);
     end
 
     assign imem_o = instr[pc[5:0]];
