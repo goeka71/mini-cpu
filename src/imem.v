@@ -13,6 +13,8 @@ module imem(pc, imem_o);
         instr[0] = 16'b0100_000_001_000010; // register 1 <- 0+2
         instr[1] = 16'b0100_000_010_000011; // register 2 <- 0+3
         instr[2] = 16'b0000_001_010_011_000; // regiter 3 <- register1 + register2
+        instr[3] = 16'b0110_011_010_000100; // mem[9] <- 3
+        instr[4] = 16'b0101_011_101_000100; // register 5 <- mem[9]
     end
 
     assign imem_o = instr[pc[5:0]];

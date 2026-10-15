@@ -15,10 +15,23 @@
         - RegDst에 따라 write addr 결정
 */
 
+/* 3차 : Load & Store
+    - LOAD : imm + rs1라는 주소의 값을 레지스터 rd에 저장 MemtoReg = 1
+    - STORE : rs2의 값을 imm+rs1라는 주소에 저장 MemWrite = 1
+
+    (1~4는 2차와 동일)
+    5-1. (Store) dmem.v : MemWrite = 1 -> read2 data의 값을 메모리의 ALU결과값 주소에 WRITE
+    5-2. (Load) dmem.v : read_data에 ALU결과값 주소의 값이 READ
+        - MemToReg = 1 -> 레지스터 rd(_8_6)에 READ한 값을 WRITE (regfile.v)
+*/
+
 module cpu(
     input clk,
     input reset,
-    output [15:0] instr
+    output [15:0] instr,
+    output RegWrite,
+    output [15:0] load_data,
+    output [15:0] ALU_res
 );
     wire [15:0] next_pc;
     wire [15:0] pc; // 현재 실행 중인 명령어의 주소
@@ -29,7 +42,7 @@ module cpu(
     wire [5:0] _5_0;
 
     //제어신호 
-    wire RegDst, RegWrite, ALUSrc, MemWrite, MemToReg;
+    wire RegDst, ALUSrc, MemWrite, MemToReg;//, RegWrite;
     wire [1:0] ALUOp, Branch;
 
     // 16비트 : 레지스터값 & sign extend된 값
@@ -37,8 +50,10 @@ module cpu(
     wire [15:0] extend;
 
     wire [2:0] write_addr;
-    wire [15:0] write_data;
+    //wire [15:0] ALU_res;
     wire zero;
+
+    //wire [15:0] load_data;
 
 //-----------------------------
     assign next_pc = pc + 1;
@@ -58,13 +73,21 @@ module cpu(
     // 제어신호 도출
     control u_control(.opcode(opcode), .RegDst(RegDst), .RegWrite(RegWrite), .ALUSrc(ALUSrc), .ALUOp(ALUOp), .Branch(Branch), .MemWrite(MemWrite), .MemToReg(MemToReg));
     
+    // RegDst MUX
     assign write_addr = RegDst ? _8_6 : _5_3; // RegDst가 1이면 [8:6]레지스터에 쓰고, 0이면 [5:3]레지스터에 씀
 
-    // 레지스터 파일
-    regfile u_regfile(.r1_addr(_11_9), .r2_addr(_8_6), .rd_addr(write_addr), .write_data(write_data), .clk(clk), .RegWrite(RegWrite), .o_1(rd1), .o_2(rd2));
+    // 레지스터 파일 + MemToReg MUX
+    // MemToReg MUX : 1이면 load_data WRITE, 0이면 ALU_res WRITE
+    regfile u_regfile(.r1_addr(_11_9), .r2_addr(_8_6), .rd_addr(write_addr), .write_data(MemToReg ? load_data : ALU_res), .clk(clk), .RegWrite(RegWrite), .o_1(rd1), .o_2(rd2));
     // r1_addr의 내용이 rd1, r2_addr의 내용이 rd2에 들어감.
 
-    alu u_alu(.r1(rd1), .r2(ALUSrc ? extend : rd2), .ALUOp(ALUOp), .res(write_data), .zero(zero));
+    // ALU + ALUSrc MUX
+    alu u_alu(.r1(rd1), .r2(ALUSrc ? extend : rd2), .ALUOp(ALUOp), .res(ALU_res), .zero(zero));
     // ALUSrc가 1이면 extend과 rd1, 0이면 rd1과 rd2를 연산
+    // ALU의 결과값이 write_data 저장
+
+    // WRITE : write data = rd2, addr = ALU_res
+    // READ : addr = ALU_res
+    dmem u_dmem(.MemWrite(MemWrite), .addr(ALU_res), .write_data(rd2), .clk(clk), .read_data(load_data));
 
 endmodule

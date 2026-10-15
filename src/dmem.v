@@ -9,22 +9,26 @@ module dmem(MemWrite, addr, write_data, clk, read_data);
     input [15:0] addr;
     input [15:0] write_data;
     input clk;
-    output reg [15:0] read_data;
+    output [15:0] read_data;
 
-    reg [15:0] data [0:7];
+    reg [15:0] data [0:63];
 
     always@(posedge clk) // Write
     begin
         if (MemWrite == 1) begin
             data[addr] <= write_data;
+            $display("Memory Write addr = %0d, data = %0d", addr, write_data);
         end
     end
 
-    always@(*) // Read
+    assign read_data = data[addr]; // Read
+
+    /*always@(*) // Read
     begin
         if (MemWrite == 0) begin
             read_data = data[addr];
-            $display("Read %d data = %d", addr, read_data);
+            $display("Memory Read %0d, data = %0d", addr, read_data);
         end
     end
+    */
 endmodule

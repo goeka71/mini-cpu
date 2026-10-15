@@ -11,15 +11,15 @@ module regfile(r1_addr, r2_addr, rd_addr, write_data, clk, RegWrite, o_1, o_2);
     output reg [15:0] o_1;
     output reg [15:0] o_2;
 
-    reg [15:0] registers [0:7];
+    reg [15:0] registers [0:63];
 
     always@(posedge clk) // Write
     begin
         if (rd_addr != 0) begin
             if (RegWrite == 1'b1)
                 registers[rd_addr] <= write_data;
+                $display("Register Write %0d", write_data);
         end
-        $display("Write %0d", write_data);
     end
 
     always@(*) // Read
